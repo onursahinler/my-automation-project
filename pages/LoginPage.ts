@@ -28,14 +28,14 @@ export class LoginPage {
     await this.page.goto('https://www.saucedemo.com/');
   }
 
-  // 4. Login 
+  // Login 
   async login(username: string, password: string) {
     await this.usernameInput.fill(username);
     await this.passwordInput.fill(password);
     await this.loginButton.click();
   }
 
-  // 5. Hata mesajını doğrulama fonksiyonu
+  // Hata mesajını doğrulama fonksiyonu
   async verifyErrorMessage(expectedText: string) {
     await expect(this.errorMessage).toBeVisible();
     await expect(this.errorMessage).toContainText(expectedText);
