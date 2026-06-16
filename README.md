@@ -60,7 +60,7 @@ npx playwright test
 * **Arayüzlü (Headed) Koşum:**
 npx playwright test --headed
 
-* **İnteraktif UI Mode ile (Time-Travel) Koşumu:**
+* **İnteraktif UI Mode ile Time-Travel Koşumu:**
 npx playwright test --ui
 
 * **Test Raporunu Görüntüleme:**
