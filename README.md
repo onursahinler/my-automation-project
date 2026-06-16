@@ -48,9 +48,9 @@ Projeyi yerelde çalıştırmak için aşağıdaki adımları takip edebilirsini
 Bilgisayarınızda **Node.js** yüklü olmalıdır.
 
 ### 2. Projeyi Klonlayın ve Bağımlılıkları Kurun
-git clone <https://github.com/onursahinler/my-automation-project.git>
-cd playwright-ecommerce-automation
-npm install
+* git clone <https://github.com/onursahinler/my-automation-project.git>
+* cd playwright-ecommerce-automation
+* npm install
 
 ### 3. Testleri Çalıştırın
 
