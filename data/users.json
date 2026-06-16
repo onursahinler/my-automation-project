@@ -10,5 +10,10 @@
     "invalidUser": {
       "username": "wrong_user",
       "password": "wrong_password"
+    },
+    "customerInfo": {
+      "firstName": "Ahmet",
+      "lastName": "Yılmaz",
+      "postalCode": "35430"
     }
   }
