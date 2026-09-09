@@ -7,7 +7,6 @@ import users from '../data/users.json';
 
 test.describe('Sauce Demo - Performance Glitch User (Yavaş Ağ)', () => {
   test('Yavaş ağ koşullarında giriş yapıp ürün satın alabilmeli', async ({ page, context }) => {
-    test.setTimeout(90_000);
 
     const loginPage = new LoginPage(page);
     const inventoryPage = new InventoryPage(page);
@@ -17,7 +16,11 @@ test.describe('Sauce Demo - Performance Glitch User (Yavaş Ağ)', () => {
     // 1. Giriş
     await loginPage.navigateTo();
     await loginPage.login(users.performanceGlitchUser.username, users.performanceGlitchUser.password);
+    
+    /* Giriş yaparken bir gecikme olduğu için
+    inventory sayfasındaki itemların görünürlüğünü kontrol etmek gerekiyor */
     await expect(page).toHaveURL(/.*inventory.html/);
+    await expect(page.locator('.inventory_list')).toBeVisible();
 
     // 2. Ürün ekle
     await expect(page.locator('[data-test="inventory-item"]').first()).toBeVisible();
