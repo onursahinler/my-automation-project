@@ -17,7 +17,7 @@ Bu proje, **Sauce Demo** e-ticaret platformunun kullanıcı senaryolarını test
 
 * **Test Runner & Automation:** [Playwright](https://playwright.dev/)
 * **Programlama Dili:** TypeScript
-* **Geliştirme Ortamı:** Node.js, Cursor (VS Code Tabanlı)
+* **Geliştirme Ortamı:** Cursor (VS Code Tabanlı)
 * **Sürüm Kontrolü:** Git & GitHub
 
 ---
@@ -35,7 +35,9 @@ playwright-ecommerce-automation/
 │   └── CheckoutPage.ts
 ├── tests/              # Gerçek test senaryolarının koşulduğu spec dosyaları
 │   ├── login.spec.ts
-│   └── checkout.spec.ts
+│   ├── checkout.spec.ts
+│   ├── performance-glitch-user.spec.ts
+│   └── cart-checkout-flow.spec.ts
 ├── playwright.config.ts # Playwright global konfigürasyon ayarları
 └── package.json        # Proje bağımlılıkları ve script tanımları 
 ```
@@ -44,15 +46,12 @@ playwright-ecommerce-automation/
 
 Projeyi yerelde çalıştırmak için aşağıdaki adımları takip edebilirsiniz:
 
-### 1. Gereksinimler
-Bilgisayarınızda **Node.js** yüklü olmalıdır.
-
-### 2. Projeyi Klonlayın ve Bağımlılıkları Kurun
+### 1. Projeyi Klonlayın ve Bağımlılıkları Kurun
 * git clone <https://github.com/onursahinler/my-automation-project.git>
 * cd playwright-ecommerce-automation
 * npm install
 
-### 3. Testleri Çalıştırın
+### 2. Testleri Çalıştırın
 
 * **Arka Planda (Headless) Koşum:**
 npx playwright test
