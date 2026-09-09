@@ -32,11 +32,13 @@ playwright-ecommerce-automation/
 │   ├── LoginPage.ts
 │   ├── InventoryPage.ts
 │   ├── CartPage.ts
-│   └── CheckoutPage.ts
+│   ├── CheckoutPage.ts
+│   └── CommonPage.ts
 ├── tests/              # Gerçek test senaryolarının koşulduğu spec dosyaları
 │   ├── login.spec.ts
 │   ├── checkout.spec.ts
 │   ├── performance-glitch-user.spec.ts
+│   ├── sidebar.spec.ts
 │   └── cart-checkout-flow.spec.ts
 ├── playwright.config.ts # Playwright global konfigürasyon ayarları
 └── package.json        # Proje bağımlılıkları ve script tanımları 
