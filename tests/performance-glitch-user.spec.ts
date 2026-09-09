@@ -1,35 +1,35 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, BrowserContext, Page } from '@playwright/test';
 import { LoginPage } from '../pages/LoginPage';
 import { InventoryPage } from '../pages/InventoryPage';
 import { CartPage } from '../pages/CartPage';
 import { CheckoutPage } from '../pages/CheckoutPage';
 import users from '../data/users.json';
 
-test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
+test.describe('Sauce Demo - Performance Glitch User (Yavaş Ağ)', () => {
+  test('Yavaş ağ koşullarında giriş yapıp ürün satın alabilmeli', async ({ page, context }) => {
+    test.setTimeout(90_000);
 
-  test('En Pahalı İki Ürünü Satın Alma ve Alışverişi Tamamlama', async ({ page }) => {
-    // Sayfa nesnesi instance'larını oluşturuyoruz
     const loginPage = new LoginPage(page);
     const inventoryPage = new InventoryPage(page);
     const cartPage = new CartPage(page);
     const checkoutPage = new CheckoutPage(page);
 
-    // 1. Adım: Giriş yap
+    // 1. Giriş
     await loginPage.navigateTo();
-    await loginPage.login(users.standardUser.username, users.standardUser.password);
+    await loginPage.login(users.performanceGlitchUser.username, users.performanceGlitchUser.password);
     await expect(page).toHaveURL(/.*inventory.html/);
 
-    // 2. Adım: Ürünleri fiyata göre sırala ve en pahalı 2 tanesini sepete ekle
-    await inventoryPage.sortProductsByPriceHighToLow();
-    await inventoryPage.addTopExpensiveProductsToCart(2);
-    await inventoryPage.verifyCartBadgeCount('2');
+    // 2. Ürün ekle
+    await expect(page.locator('[data-test="inventory-item"]').first()).toBeVisible();
+    await inventoryPage.addProductToCartByIndex(0);
+    await inventoryPage.verifyCartBadgeCount('1');
 
-    // 3. Adım: Sepete git ve Checkout sürecini başlat
+    // 3. Sepete git ve checkout
     await inventoryPage.goToCart();
     await expect(page).toHaveURL(/.*cart.html/);
     await cartPage.proceedToCheckout();
 
-    // 4. Adım: Müşteri bilgilerini doldur ve devam et
+    // 4. Bilgileri doldur
     await expect(page).toHaveURL(/.*checkout-step-one.html/);
     await checkoutPage.fillInformation(
       users.customerInfo.firstName,
@@ -37,13 +37,12 @@ test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
       users.customerInfo.postalCode
     );
 
-    // 5. Adım: Sipariş özetini onayla ve alışverişi bitir
+    // 5. Siparişi tamamla
     await expect(page).toHaveURL(/.*checkout-step-two.html/);
     await checkoutPage.finishOrder();
 
-    // 6. Adım: Başarı mesajını doğrula (Final Assertion)
+    // 6. Doğrula
     await expect(page).toHaveURL(/.*checkout-complete.html/);
     await checkoutPage.verifySuccessMessage('Thank you for your order!');
   });
-
 });

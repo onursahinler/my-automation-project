@@ -20,6 +20,30 @@ export class InventoryPage {
     await this.productSortSelect.selectOption('hilo');
   }
 
+  // Ürünleri fiyata göre (düşükten yükseğe) sıralayan fonksiyon
+  async sortProductsByPriceLowToHigh() {
+    await this.productSortSelect.selectOption('lohi');
+  }
+
+  // Belirli sıradaki ürünün adını döndürür
+  async getProductNameByIndex(index: number): Promise<string> {
+    return this.inventoryItems.nth(index).locator('[data-test="inventory-item-name"]').innerText();
+  }
+
+  // Belirli sıradaki ürünü sepete ekler
+  async addProductToCartByIndex(index: number) {
+    const addToCartButton = this.inventoryItems.nth(index).locator('button:has-text("Add to cart")');
+    await addToCartButton.click();
+  }
+
+  // Ürün adına göre sepete ekler
+  async addProductToCartByName(productName: string) {
+    const item = this.inventoryItems.filter({
+      has: this.page.locator('[data-test="inventory-item-name"]', { hasText: productName }),
+    });
+    await item.locator('button:has-text("Add to cart")').click();
+  }
+
   // Sayfadaki en pahalı ilk X adet ürünü sepete ekleyen fonksiyon
   async addTopExpensiveProductsToCart(count: number) {
     for (let i = 0; i < count; i++) {
@@ -42,5 +66,11 @@ export class InventoryPage {
   // Sepet sayfasına gitmek için sepet ikonuna tıklama fonksiyonu
   async goToCart() {
     await this.shoppingCartBadge.click();
+  }
+
+  // Ürünün sepetten kaldırıldığını doğrula — "Add to cart" butonu tekrar görünür olmalı
+  async verifyProductHasAddToCartButton(index: number) {
+    const addToCartButton = this.inventoryItems.nth(index).locator('button:has-text("Add to cart")');
+    await expect(addToCartButton).toBeVisible();
   }
 }

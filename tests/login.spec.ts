@@ -13,8 +13,8 @@ test.describe('Sauce Demo - Login Test Süiti', () => {
   test('Başarılı Kullanıcı Girişi ve Doğrulama', async ({ page }) => {
     const loginPage = new LoginPage(page);
 
-    // validUser için olan veriyi JSON dosyamızdan çekiyoruz
-    await loginPage.login(users.validUser.username, users.validUser.password);
+    // standardUser için olan veriyi JSON dosyamızdan çekiyoruz
+    await loginPage.login(users.standardUser.username, users.standardUser.password);
 
     // Giriş yaptıktan sonra URL'in /inventory.html içerdiğini doğruluyoruz
     await expect(page).toHaveURL(/.*inventory.html/);

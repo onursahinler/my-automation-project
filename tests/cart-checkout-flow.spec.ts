@@ -5,31 +5,44 @@ import { CartPage } from '../pages/CartPage';
 import { CheckoutPage } from '../pages/CheckoutPage';
 import users from '../data/users.json';
 
-test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
+test.describe('Sauce Demo - Sepet Yönetimi ve Checkout Akışı', () => {
 
-  test('En Pahalı İki Ürünü Satın Alma ve Alışverişi Tamamlama', async ({ page }) => {
-    // Sayfa nesnesi instance'larını oluşturuyoruz
+  test('En pahalı 3 ürünü ekle, en ucuzunu sil, tekrar ekle ve satın al', async ({ page }) => {
     const loginPage = new LoginPage(page);
     const inventoryPage = new InventoryPage(page);
     const cartPage = new CartPage(page);
     const checkoutPage = new CheckoutPage(page);
 
-    // 1. Adım: Giriş yap
+    // 1. Başarılı giriş
     await loginPage.navigateTo();
     await loginPage.login(users.standardUser.username, users.standardUser.password);
     await expect(page).toHaveURL(/.*inventory.html/);
 
-    // 2. Adım: Ürünleri fiyata göre sırala ve en pahalı 2 tanesini sepete ekle
+    // 2. Pahalıdan ucuza sırala ve en pahalı 3 ürünü sepete ekle
     await inventoryPage.sortProductsByPriceHighToLow();
-    await inventoryPage.addTopExpensiveProductsToCart(2);
-    await inventoryPage.verifyCartBadgeCount('2');
+    const cheapestOfTopThree = await inventoryPage.getProductNameByIndex(2);
+    await inventoryPage.addTopExpensiveProductsToCart(3);
+    await inventoryPage.verifyCartBadgeCount('3');
 
-    // 3. Adım: Sepete git ve Checkout sürecini başlat
+    // 3. Sepete git ve sepetteki en ucuz ürünü sil
     await inventoryPage.goToCart();
     await expect(page).toHaveURL(/.*cart.html/);
+    await cartPage.verifyCartItemCount(3);
+    await cartPage.removeProductByName(cheapestOfTopThree);
+    await cartPage.verifyCartItemCount(2);
+
+    // 4. Inventory'ye dön ve ürünü tekrar ekle
+    await cartPage.continueShopping();
+    await inventoryPage.addProductToCartByName(cheapestOfTopThree);
+    await inventoryPage.verifyCartBadgeCount('3');
+
+    // 5. Sepete git ve checkout sürecini başlat
+    await inventoryPage.goToCart();
+    await expect(page).toHaveURL(/.*cart.html/);
+    await cartPage.verifyCartItemCount(3);
     await cartPage.proceedToCheckout();
 
-    // 4. Adım: Müşteri bilgilerini doldur ve devam et
+    // 6. Müşteri bilgilerini doldur
     await expect(page).toHaveURL(/.*checkout-step-one.html/);
     await checkoutPage.fillInformation(
       users.customerInfo.firstName,
@@ -37,11 +50,9 @@ test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
       users.customerInfo.postalCode
     );
 
-    // 5. Adım: Sipariş özetini onayla ve alışverişi bitir
+    // 7. Siparişi tamamla ve başarı mesajını doğrula
     await expect(page).toHaveURL(/.*checkout-step-two.html/);
     await checkoutPage.finishOrder();
-
-    // 6. Adım: Başarı mesajını doğrula (Final Assertion)
     await expect(page).toHaveURL(/.*checkout-complete.html/);
     await checkoutPage.verifySuccessMessage('Thank you for your order!');
   });
