@@ -1,43 +1,22 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import users from '../data/users.json';
+import { test, expect, users } from '../hooks/hook';
 
+/* beforeEach yok: `app` fixture'ı (hooks/hook.ts) her testten önce
+   sayfa nesnelerini kurar ve login ekranını açar. */
 test.describe('Sauce Demo - Login Test Süiti', () => {
-  
-  // Her testten önce temiz bir sayfa ile LoginPage instance'ı oluşturuyoruz
-  test.beforeEach(async ({ page }) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.navigateTo();
-  });
 
-  test('Başarılı Kullanıcı Girişi ve Doğrulama', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-
-    // standardUser için olan veriyi JSON dosyamızdan çekiyoruz
-    await loginPage.login(users.standardUser.username, users.standardUser.password);
-
-    // Giriş yaptıktan sonra URL'in /inventory.html içerdiğini doğruluyoruz
+  test('Başarılı Kullanıcı Girişi ve Doğrulama', async ({ app, page }) => {
+    await app.loginPage.login(users.standardUser.username, users.standardUser.password);
     await expect(page).toHaveURL(/.*inventory.html/);
   });
 
-  test('Kilitli Kullanıcı Giriş Hatası Doğrulaması', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-
-    // Kilitli kullanıcıyı deniyoruz
-    await loginPage.login(users.lockedOutUser.username, users.lockedOutUser.password);
-
-    // Sayfa üzerinde çıkan spesifik hata mesajını POM fonksiyonumuzla doğruluyoruz
-    await loginPage.verifyErrorMessage('Epic sadface: Sorry, this user has been locked out.');
+  test('Kilitli Kullanıcı Giriş Hatası Doğrulaması', async ({ app }) => {
+    await app.loginPage.login(users.lockedOutUser.username, users.lockedOutUser.password);
+    await app.loginPage.verifyErrorMessage('Epic sadface: Sorry, this user has been locked out.');
   });
 
-  test('Geçersiz Kullanıcı Giriş Hatası Doğrulaması', async ({ page }) => {
-    const loginPage = new LoginPage(page);
-
-    // Yanlış şifre kombinasyonunu deniyoruz
-    await loginPage.login(users.invalidUser.username, users.invalidUser.password);
-
-    // Hata mesajını doğruluyoruz
-    await loginPage.verifyErrorMessage('Epic sadface: Username and password do not match any user in this service');
+  test('Geçersiz Kullanıcı Giriş Hatası Doğrulaması', async ({ app }) => {
+    await app.loginPage.login(users.invalidUser.username, users.invalidUser.password);
+    await app.loginPage.verifyErrorMessage('Epic sadface: Username and password do not match any user in this service');
   });
 
 });

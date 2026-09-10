@@ -1,51 +1,39 @@
-import { test, expect } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { CommonPage } from '../pages/CommonPage';
-import users from '../data/users.json';
+import { test, expect } from '../hooks/hook';
 
+/* beforeEach yok: `loggedInApp` fixture'ı her testten önce
+   login olup inventory sayfasına geçmiş bir uygulama verir. */
 test.describe('Sidebar & Header Navigation Tests', () => {
-  let loginPage: LoginPage;
-  let commonPage: CommonPage;
 
-  test.beforeEach(async ({ page }) => {
-    loginPage = new LoginPage(page);
-    commonPage = new CommonPage(page);
-
-    // Her test öncesi login ol ve inventory sayfasına geç
-    await loginPage.navigateTo();
-    await loginPage.login(users.standardUser.username, users.standardUser.password);
-    await expect(page).toHaveURL(/.*inventory.html/);
-  });
-
-  test('TC01: Sepet sayfasından All Items butonuyla envantere geri dönebilmeli', async ({ page }) => {
+  test('TC01: Sepet sayfasından All Items butonuyla envantere geri dönebilmeli', async ({ loggedInApp, page }) => {
     // 1. Sepete git
-    await commonPage.goToCart();
+    await loggedInApp.commonPage.goToCart();
     await expect(page).toHaveURL(/.*cart.html/);
 
     // 2. Yan menüyü açıp "All Items" linkine tıkla
-    await commonPage.navigateToAllItems();
+    await loggedInApp.commonPage.navigateToAllItems();
 
     // 3. Tekrar inventory sayfasına döndüğünü ve ürünlerin listelendiğini doğrula
     await expect(page).toHaveURL(/.*inventory.html/);
     await expect(page.locator('.inventory_list')).toBeVisible();
   });
 
-  test('TC02: Yan menü açılıp "X" butonu ile kapatılabilmeli', async () => {
+  test('TC02: Yan menü açılıp "X" butonu ile kapatılabilmeli', async ({ loggedInApp }) => {
     // 1. Menüyü aç
-    await commonPage.openMenu();
-    await expect(commonPage.allItemsLink).toBeVisible();
+    await loggedInApp.commonPage.openMenu();
+    await expect(loggedInApp.commonPage.allItemsLink).toBeVisible();
 
     // 2. Menüyü kapat
-    await commonPage.closeMenu();
-    await expect(commonPage.allItemsLink).not.toBeVisible();
+    await loggedInApp.commonPage.closeMenu();
+    await expect(loggedInApp.commonPage.allItemsLink).not.toBeVisible();
   });
 
-  test('TC03: Logout fonksiyonu oturumu sonlandırıp login ekranına yönlendirmeli', async ({ page }) => {
+  test('TC03: Logout fonksiyonu oturumu sonlandırıp login ekranına yönlendirmeli', async ({ loggedInApp, page }) => {
     // 1. CommonPage üzerinden çıkış yap
-    await commonPage.logout();
+    await loggedInApp.commonPage.logout();
 
     // 2. Login URL'ine dönüldüğünü ve giriş butonunun görünür olduğunu doğrula
     await expect(page).toHaveURL('https://www.saucedemo.com/');
     await expect(page.locator('[data-test="login-button"]')).toBeVisible();
   });
+
 });

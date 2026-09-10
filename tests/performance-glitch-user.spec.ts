@@ -1,40 +1,26 @@
-import { test, expect, BrowserContext, Page } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import { InventoryPage } from '../pages/InventoryPage';
-import { CartPage } from '../pages/CartPage';
-import { CheckoutPage } from '../pages/CheckoutPage';
-import users from '../data/users.json';
+import { test, expect, users } from '../hooks/hook';
 
+/* `app` fixture'ı login ekranını açar; bu süit standart kullanıcı yerine
+   performance_glitch_user ile giriş yaptığı için loginAs() kullanılıyor. */
 test.describe('Sauce Demo - Performance Glitch User (Yavaş Ağ)', () => {
-  test('Yavaş ağ koşullarında giriş yapıp ürün satın alabilmeli', async ({ page, context }) => {
 
-    const loginPage = new LoginPage(page);
-    const inventoryPage = new InventoryPage(page);
-    const cartPage = new CartPage(page);
-    const checkoutPage = new CheckoutPage(page);
-
-    // 1. Giriş
-    await loginPage.navigateTo();
-    await loginPage.login(users.performanceGlitchUser.username, users.performanceGlitchUser.password);
-    
-    /* Giriş yaparken bir gecikme olduğu için
-    inventory sayfasındaki itemların görünürlüğünü kontrol etmek gerekiyor */
-    await expect(page).toHaveURL(/.*inventory.html/);
-    await expect(page.locator('.inventory_list')).toBeVisible();
+  test('Yavaş ağ koşullarında giriş yapıp ürün satın alabilmeli', async ({ app, page }) => {
+    // 1. Giriş (loginAs içinde inventory URL'i ve ürün listesi görünürlüğü doğrulanır)
+    await app.loginAs(users.performanceGlitchUser.username, users.performanceGlitchUser.password);
 
     // 2. Ürün ekle
     await expect(page.locator('[data-test="inventory-item"]').first()).toBeVisible();
-    await inventoryPage.addProductToCartByIndex(0);
-    await inventoryPage.verifyCartBadgeCount('1');
+    await app.inventoryPage.addProductToCartByIndex(0);
+    await app.inventoryPage.verifyCartBadgeCount('1');
 
     // 3. Sepete git ve checkout
-    await inventoryPage.goToCart();
+    await app.commonPage.goToCart();
     await expect(page).toHaveURL(/.*cart.html/);
-    await cartPage.proceedToCheckout();
+    await app.cartPage.proceedToCheckout();
 
     // 4. Bilgileri doldur
     await expect(page).toHaveURL(/.*checkout-step-one.html/);
-    await checkoutPage.fillInformation(
+    await app.checkoutPage.fillInformation(
       users.customerInfo.firstName,
       users.customerInfo.lastName,
       users.customerInfo.postalCode
@@ -42,10 +28,11 @@ test.describe('Sauce Demo - Performance Glitch User (Yavaş Ağ)', () => {
 
     // 5. Siparişi tamamla
     await expect(page).toHaveURL(/.*checkout-step-two.html/);
-    await checkoutPage.finishOrder();
+    await app.checkoutPage.finishOrder();
 
     // 6. Doğrula
     await expect(page).toHaveURL(/.*checkout-complete.html/);
-    await checkoutPage.verifySuccessMessage('Thank you for your order!');
+    await app.checkoutPage.verifySuccessMessage('Thank you for your order!');
   });
+
 });

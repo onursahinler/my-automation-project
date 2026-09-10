@@ -63,10 +63,7 @@ export class InventoryPage {
     await expect(this.shoppingCartBadge).toHaveText(expectedCount);
   }
 
-  // Sepet sayfasına gitmek için sepet ikonuna tıklama fonksiyonu
-  async goToCart() {
-    await this.shoppingCartBadge.click();
-  }
+
 
   // Ürünün sepetten kaldırıldığını doğrula — "Add to cart" butonu tekrar görünür olmalı
   async verifyProductHasAddToCartButton(index: number) {
