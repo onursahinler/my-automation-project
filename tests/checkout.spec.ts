@@ -1,10 +1,12 @@
-import { test, expect, users } from '../hooks/hook';
+import { test, expect } from '../hooks/hook';
 import { Constants } from '../constants/Constants';
+import { DataFactory } from '../utils/DataFactory';
 
 /* Giriş adımı `loggedInApp` fixture'ında (hooks/hook.ts) merkezîleştirildi. */
 test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
 
-  test('En Pahalı İki Ürünü Satın Alma ve Alışverişi Tamamlama', async ({ loggedInApp, page }) => {
+  test('En Pahalı İki Ürünü Satın Alma ve Alışverişi Tamamlama', { tag: ['@smoke', '@regression'] }, async ({ loggedInApp, page }) => {
+    const customer = DataFactory.customerInfo();
     // 1. Adım: Ürünleri fiyata göre sırala ve en pahalı 2 tanesini sepete ekle
     await loggedInApp.inventoryPage.sortProductsByPriceHighToLow();
     await loggedInApp.inventoryPage.addTopExpensiveProductsToCart(2);
@@ -17,11 +19,7 @@ test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
 
     // 3. Adım: Müşteri bilgilerini doldur ve devam et
     await expect(page).toHaveURL(Constants.URLS.CHECKOUT_STEP_ONE);
-    await loggedInApp.checkoutPage.fillInformation(
-      users.customerInfo.firstName,
-      users.customerInfo.lastName,
-      users.customerInfo.postalCode
-    );
+    await loggedInApp.checkoutPage.fillInformation(customer);
 
     // 4. Adım: Sipariş özetini onayla ve alışverişi bitir
     await expect(page).toHaveURL(Constants.URLS.CHECKOUT_STEP_TWO);

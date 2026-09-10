@@ -1,10 +1,12 @@
-import { test, expect, users } from '../hooks/hook';
+import { test, expect } from '../hooks/hook';
 import { Constants } from '../constants/Constants';
+import { DataFactory } from '../utils/DataFactory';
 
 /* Giriş adımı `loggedInApp` fixture'ında (hooks/hook.ts) merkezîleştirildi. */
 test.describe('Sauce Demo - Sepet Yönetimi ve Checkout Akışı', () => {
 
-  test('En pahalı 3 ürünü ekle, en ucuzunu sil, tekrar ekle ve satın al', async ({ loggedInApp, page }) => {
+  test('En pahalı 3 ürünü ekle, en ucuzunu sil, tekrar ekle ve satın al', { tag: '@regression' }, async ({ loggedInApp, page }) => {
+    const customer = DataFactory.customerInfo();
     // 1. Pahalıdan ucuza sırala ve en pahalı 3 ürünü sepete ekle
     await loggedInApp.inventoryPage.sortProductsByPriceHighToLow();
     const cheapestOfTopThree = await loggedInApp.inventoryPage.getProductNameByIndex(2);
@@ -31,11 +33,7 @@ test.describe('Sauce Demo - Sepet Yönetimi ve Checkout Akışı', () => {
 
     // 5. Müşteri bilgilerini doldur
     await expect(page).toHaveURL(Constants.URLS.CHECKOUT_STEP_ONE);
-    await loggedInApp.checkoutPage.fillInformation(
-      users.customerInfo.firstName,
-      users.customerInfo.lastName,
-      users.customerInfo.postalCode
-    );
+    await loggedInApp.checkoutPage.fillInformation(customer);
 
     // 6. Siparişi tamamla ve başarı mesajını doğrula
     await expect(page).toHaveURL(Constants.URLS.CHECKOUT_STEP_TWO);

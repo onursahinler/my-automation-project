@@ -25,6 +25,4 @@ export const users = {
 
   /** Kasıtlı olarak hatalı — negatif test verisi, gerçek bir kimlik bilgisi değil */
   invalidUser: rawUsers.invalidUser as Credentials,
-
-  customerInfo: rawUsers.customerInfo,
 };

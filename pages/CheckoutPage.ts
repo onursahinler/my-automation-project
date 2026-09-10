@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { CustomerInfo } from '../utils/DataFactory';
 
 export class CheckoutPage extends BasePage {
   private readonly firstNameInput: Locator;
@@ -20,10 +21,10 @@ export class CheckoutPage extends BasePage {
   }
 
   // Müşteri bilgilerini doldur ve devam et
-  async fillInformation(firstName: string, lastName: string, postalCode: string) {
-    await this.fill(this.firstNameInput, firstName);
-    await this.fill(this.lastNameInput, lastName);
-    await this.fill(this.postalCodeInput, postalCode);
+  async fillInformation(customer: CustomerInfo) {
+    await this.fill(this.firstNameInput, customer.firstName);
+    await this.fill(this.lastNameInput, customer.lastName);
+    await this.fill(this.postalCodeInput, customer.postalCode);
     await this.click(this.continueButton);
   }
 

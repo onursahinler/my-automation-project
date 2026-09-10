@@ -5,7 +5,7 @@ import { Constants } from '../constants/Constants';
    login olup inventory sayfasına geçmiş bir uygulama verir. */
 test.describe('Sidebar & Header Navigation Tests', () => {
 
-  test('TC01: Sepet sayfasından All Items butonuyla envantere geri dönebilmeli', async ({ loggedInApp, page }) => {
+  test('TC01: Sepet sayfasından All Items butonuyla envantere geri dönebilmeli', { tag: '@regression' }, async ({ loggedInApp, page }) => {
     // 1. Sepete git
     await loggedInApp.commonPage.goToCart();
     await expect(page).toHaveURL(Constants.URLS.CART);
@@ -18,7 +18,7 @@ test.describe('Sidebar & Header Navigation Tests', () => {
     await loggedInApp.inventoryPage.verifyPageLoaded();
   });
 
-  test('TC02: Yan menü açılıp "X" butonu ile kapatılabilmeli', async ({ loggedInApp }) => {
+  test('TC02: Yan menü açılıp "X" butonu ile kapatılabilmeli', { tag: '@regression' }, async ({ loggedInApp }) => {
     // 1. Menüyü aç
     await loggedInApp.commonPage.openMenu();
     await expect(loggedInApp.commonPage.allItemsLink).toBeVisible();
@@ -28,7 +28,7 @@ test.describe('Sidebar & Header Navigation Tests', () => {
     await expect(loggedInApp.commonPage.allItemsLink).not.toBeVisible();
   });
 
-  test('TC03: Logout fonksiyonu oturumu sonlandırıp login ekranına yönlendirmeli', async ({ loggedInApp, page }) => {
+  test('TC03: Logout fonksiyonu oturumu sonlandırıp login ekranına yönlendirmeli', { tag: ['@smoke', '@regression'] }, async ({ loggedInApp, page }) => {
     // 1. CommonPage üzerinden çıkış yap
     await loggedInApp.commonPage.logout();
 
