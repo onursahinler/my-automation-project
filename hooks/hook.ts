@@ -4,7 +4,8 @@ import { InventoryPage } from '../pages/InventoryPage';
 import { CartPage } from '../pages/CartPage';
 import { CheckoutPage } from '../pages/CheckoutPage';
 import { CommonPage } from '../pages/CommonPage';
-import users from '../data/users.json';
+import { users } from '../data/users';
+import { Constants } from '../constants/Constants';
 
 /**
  * Hooks sınıfı:
@@ -40,7 +41,7 @@ export class Hooks {
   /** Verilen kullanıcı ile giriş yapar ve inventory sayfasına ulaşıldığını doğrular */
   async loginAs(username: string, password: string) {
     await this.loginPage.login(username, password);
-    await this.inventoryPage.expectUrl(/.*inventory\.html/);
+    await this.inventoryPage.expectUrl(Constants.URLS.INVENTORY);
     await this.inventoryPage.verifyPageLoaded();
   }
 

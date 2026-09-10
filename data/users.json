@@ -1,31 +1,15 @@
 {
-    "standardUser": {
-      "username": "standard_user",
-      "password": "secret_sauce"
-    },
-    "lockedOutUser": {
-      "username": "locked_out_user",
-      "password": "secret_sauce"
-    },
-    "problemUser": {
-      "username": "problem_user",
-      "password": "secret_sauce"
-    },
-    "performanceGlitchUser": {
-      "username": "performance_glitch_user",
-      "password": "secret_sauce"
-    },
-    "errorUser": {
-      "username": "error_user",
-      "password": "secret_sauce"
-    },
-    "invalidUser": {
-      "username": "wrong_user",
-      "password": "wrong_password"
-    },
-    "customerInfo": {
-      "firstName": "Ahmet",
-      "lastName": "Yılmaz",
-      "postalCode": "35430"
-    }
+  "standardUser": { "username": "standard_user" },
+  "lockedOutUser": { "username": "locked_out_user" },
+  "problemUser": { "username": "problem_user" },
+  "performanceGlitchUser": { "username": "performance_glitch_user" },
+  "errorUser": { "username": "error_user" },
+
+  "invalidUser": { "username": "wrong_user", "password": "wrong_password" },
+
+  "customerInfo": {
+    "firstName": "Ahmet",
+    "lastName": "Yılmaz",
+    "postalCode": "35430"
   }
+}

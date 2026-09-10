@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { Constants } from '../constants/Constants';
 
 export class LoginPage extends BasePage {
   // Sadece bu sayfaya ait locator'lar. `page` alanı ve assertion'lar BasePage'de.
@@ -18,7 +19,7 @@ export class LoginPage extends BasePage {
 
   /** Login sayfasına git (baseURL config'ten gelir) */
   async navigateTo() {
-    await this.goto('/');
+    await this.goto(Constants.PATHS.LOGIN);
   }
 
   async login(username: string, password: string) {

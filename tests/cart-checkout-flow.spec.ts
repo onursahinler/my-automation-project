@@ -1,4 +1,5 @@
 import { test, expect, users } from '../hooks/hook';
+import { Constants } from '../constants/Constants';
 
 /* Giriş adımı `loggedInApp` fixture'ında (hooks/hook.ts) merkezîleştirildi. */
 test.describe('Sauce Demo - Sepet Yönetimi ve Checkout Akışı', () => {
@@ -12,7 +13,7 @@ test.describe('Sauce Demo - Sepet Yönetimi ve Checkout Akışı', () => {
 
     // 2. Sepete git ve sepetteki en ucuz ürünü sil
     await loggedInApp.commonPage.goToCart();
-    await expect(page).toHaveURL(/.*cart.html/);
+    await expect(page).toHaveURL(Constants.URLS.CART);
     await loggedInApp.cartPage.verifyCartItemCount(3);
     await loggedInApp.cartPage.removeProductByName(cheapestOfTopThree);
     await loggedInApp.cartPage.verifyCartItemCount(2);
@@ -24,12 +25,12 @@ test.describe('Sauce Demo - Sepet Yönetimi ve Checkout Akışı', () => {
 
     // 4. Sepete git ve checkout sürecini başlat
     await loggedInApp.commonPage.goToCart();
-    await expect(page).toHaveURL(/.*cart.html/);
+    await expect(page).toHaveURL(Constants.URLS.CART);
     await loggedInApp.cartPage.verifyCartItemCount(3);
     await loggedInApp.cartPage.proceedToCheckout();
 
     // 5. Müşteri bilgilerini doldur
-    await expect(page).toHaveURL(/.*checkout-step-one.html/);
+    await expect(page).toHaveURL(Constants.URLS.CHECKOUT_STEP_ONE);
     await loggedInApp.checkoutPage.fillInformation(
       users.customerInfo.firstName,
       users.customerInfo.lastName,
@@ -37,10 +38,10 @@ test.describe('Sauce Demo - Sepet Yönetimi ve Checkout Akışı', () => {
     );
 
     // 6. Siparişi tamamla ve başarı mesajını doğrula
-    await expect(page).toHaveURL(/.*checkout-step-two.html/);
+    await expect(page).toHaveURL(Constants.URLS.CHECKOUT_STEP_TWO);
     await loggedInApp.checkoutPage.finishOrder();
-    await expect(page).toHaveURL(/.*checkout-complete.html/);
-    await loggedInApp.checkoutPage.verifySuccessMessage('Thank you for your order!');
+    await expect(page).toHaveURL(Constants.URLS.CHECKOUT_COMPLETE);
+    await loggedInApp.checkoutPage.verifySuccessMessage(Constants.MESSAGES.ORDER_SUCCESS);
   });
 
 });

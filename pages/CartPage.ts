@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { Constants } from '../constants/Constants';
 
 export class CartPage extends BasePage {
   private readonly checkoutButton: Locator;
@@ -21,7 +22,7 @@ export class CartPage extends BasePage {
   // Inventory sayfasına geri dön
   async continueShopping() {
     await this.click(this.continueShoppingButton);
-    await this.expectUrl(/.*inventory\.html/);
+    await this.expectUrl(Constants.URLS.INVENTORY);
   }
 
   // Sepetteki belirli sıradaki ürünü kaldır (0'dan başlar)

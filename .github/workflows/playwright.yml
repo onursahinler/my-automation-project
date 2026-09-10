@@ -19,6 +19,12 @@ jobs:
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
+      env:
+        # .env dosyası repoya gönderilmediği için CI değerleri buradan verilir
+        BASE_URL: https://www.saucedemo.com
+        USER_PASSWORD: ${{ secrets.USER_PASSWORD }}
+        HEADLESS: 'true'
+        SLOW_MO: '0'
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:

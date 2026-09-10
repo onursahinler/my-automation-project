@@ -1,82 +1,59 @@
 import { defineConfig, devices } from '@playwright/test';
+import { ENV } from './config/env';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
- */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-/**
- * See https://playwright.dev/docs/test-configuration.
+ * Ortama bağlı tüm değerler config/env.ts üzerinden .env dosyasından gelir.
+ * https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
   testDir: './tests',
-  /* Run tests in files in parallel */
-  fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
-  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
-  use: {
-    /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'https://www.saucedemo.com',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+  /* Tek bir testin toplam süre limiti */
+  timeout: ENV.TEST_TIMEOUT,
+
+  /* Dosyalardaki testleri paralel çalıştır */
+  fullyParallel: true,
+
+  /* CI'da yanlışlıkla bırakılan test.only build'i düşürsün */
+  forbidOnly: ENV.IS_CI,
+
+  /* Tekrar deneme: CI'da 2, local'de .env'deki değer */
+  retries: ENV.IS_CI ? 2 : ENV.RETRIES,
+
+  /* CI'da paralelliği kapat */
+  workers: ENV.IS_CI ? 1 : undefined,
+
+  reporter: 'html',
+
+  use: {
+    /* page.goto('/') gibi göreli adreslerin çözümleneceği kök adres */
+    baseURL: ENV.BASE_URL,
+
+    /* Tek bir aksiyonun (click, fill...) süre limiti */
+    actionTimeout: ENV.ACTION_TIMEOUT,
+
+    headless: ENV.HEADLESS,
+
+    /* İlk tekrar denemede trace topla */
     trace: 'on-first-retry',
+
     launchOptions: {
-      slowMo: 1000, // Her adımı 1 saniye (1000 ms) yavaşlatır
-    }
+      slowMo: ENV.SLOW_MO,
+    },
   },
 
-  /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-
     {
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-
     {
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ],
-
-  /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
 });

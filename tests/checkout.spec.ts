@@ -1,4 +1,5 @@
 import { test, expect, users } from '../hooks/hook';
+import { Constants } from '../constants/Constants';
 
 /* Giriş adımı `loggedInApp` fixture'ında (hooks/hook.ts) merkezîleştirildi. */
 test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
@@ -11,11 +12,11 @@ test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
 
     // 2. Adım: Sepete git ve Checkout sürecini başlat
     await loggedInApp.commonPage.goToCart();
-    await expect(page).toHaveURL(/.*cart.html/);
+    await expect(page).toHaveURL(Constants.URLS.CART);
     await loggedInApp.cartPage.proceedToCheckout();
 
     // 3. Adım: Müşteri bilgilerini doldur ve devam et
-    await expect(page).toHaveURL(/.*checkout-step-one.html/);
+    await expect(page).toHaveURL(Constants.URLS.CHECKOUT_STEP_ONE);
     await loggedInApp.checkoutPage.fillInformation(
       users.customerInfo.firstName,
       users.customerInfo.lastName,
@@ -23,12 +24,12 @@ test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
     );
 
     // 4. Adım: Sipariş özetini onayla ve alışverişi bitir
-    await expect(page).toHaveURL(/.*checkout-step-two.html/);
+    await expect(page).toHaveURL(Constants.URLS.CHECKOUT_STEP_TWO);
     await loggedInApp.checkoutPage.finishOrder();
 
     // 5. Adım: Başarı mesajını doğrula (Final Assertion)
-    await expect(page).toHaveURL(/.*checkout-complete.html/);
-    await loggedInApp.checkoutPage.verifySuccessMessage('Thank you for your order!');
+    await expect(page).toHaveURL(Constants.URLS.CHECKOUT_COMPLETE);
+    await loggedInApp.checkoutPage.verifySuccessMessage(Constants.MESSAGES.ORDER_SUCCESS);
   });
 
 });

@@ -1,4 +1,5 @@
 import { test, expect } from '../hooks/hook';
+import { Constants } from '../constants/Constants';
 
 /* beforeEach yok: `loggedInApp` fixture'ı her testten önce
    login olup inventory sayfasına geçmiş bir uygulama verir. */
@@ -7,13 +8,13 @@ test.describe('Sidebar & Header Navigation Tests', () => {
   test('TC01: Sepet sayfasından All Items butonuyla envantere geri dönebilmeli', async ({ loggedInApp, page }) => {
     // 1. Sepete git
     await loggedInApp.commonPage.goToCart();
-    await expect(page).toHaveURL(/.*cart.html/);
+    await expect(page).toHaveURL(Constants.URLS.CART);
 
     // 2. Yan menüyü açıp "All Items" linkine tıkla
     await loggedInApp.commonPage.navigateToAllItems();
 
     // 3. Tekrar inventory sayfasına döndüğünü ve ürünlerin listelendiğini doğrula
-    await expect(page).toHaveURL(/.*inventory.html/);
+    await expect(page).toHaveURL(Constants.URLS.INVENTORY);
     await loggedInApp.inventoryPage.verifyPageLoaded();
   });
 
@@ -32,7 +33,7 @@ test.describe('Sidebar & Header Navigation Tests', () => {
     await loggedInApp.commonPage.logout();
 
     // 2. Login URL'ine dönüldüğünü ve giriş butonunun görünür olduğunu doğrula
-    await expect(page).toHaveURL('https://www.saucedemo.com/');
+    await expect(page).toHaveURL(Constants.URLS.LOGIN);
     await loggedInApp.loginPage.verifyPageLoaded();
   });
 

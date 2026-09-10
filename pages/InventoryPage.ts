@@ -1,5 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { BasePage } from './BasePage';
+import { Constants } from '../constants/Constants';
 
 export class InventoryPage extends BasePage {
   private readonly productSortSelect: Locator;
@@ -23,12 +24,12 @@ export class InventoryPage extends BasePage {
 
   // Ürünleri fiyata göre (yüksekten düşüğe) sırala
   async sortProductsByPriceHighToLow() {
-    await this.selectOption(this.productSortSelect, 'hilo');
+    await this.selectOption(this.productSortSelect, Constants.SORT_OPTIONS.PRICE_HIGH_TO_LOW);
   }
 
   // Ürünleri fiyata göre (düşükten yükseğe) sırala
   async sortProductsByPriceLowToHigh() {
-    await this.selectOption(this.productSortSelect, 'lohi');
+    await this.selectOption(this.productSortSelect, Constants.SORT_OPTIONS.PRICE_LOW_TO_HIGH);
   }
 
   // Belirli sıradaki ürünün adını döndürür
