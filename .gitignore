@@ -10,3 +10,8 @@ node_modules/
 # Environment
 .env
 .env.local
+
+# Allure
+allure-results/
+allure-report/
+.allure/

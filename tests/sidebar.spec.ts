@@ -1,11 +1,13 @@
 import { test, expect } from '../hooks/hook';
 import { Constants } from '../constants/Constants';
+import { AllureHelper, Severity } from '../utils/AllureHelper';
 
 /* beforeEach yok: `loggedInApp` fixture'ı her testten önce
    login olup inventory sayfasına geçmiş bir uygulama verir. */
 test.describe('Sidebar & Header Navigation Tests', () => {
 
   test('TC01: Sepet sayfasından All Items butonuyla envantere geri dönebilmeli', { tag: '@regression' }, async ({ loggedInApp, page }) => {
+    await AllureHelper.meta({ epic: 'Sauce Demo E-Ticaret', feature: 'Navigasyon', story: 'All Items ile envantere dönüş', severity: Severity.NORMAL });
     // 1. Sepete git
     await loggedInApp.commonPage.goToCart();
     await expect(page).toHaveURL(Constants.URLS.CART);
@@ -19,6 +21,7 @@ test.describe('Sidebar & Header Navigation Tests', () => {
   });
 
   test('TC02: Yan menü açılıp "X" butonu ile kapatılabilmeli', { tag: '@regression' }, async ({ loggedInApp }) => {
+    await AllureHelper.meta({ epic: 'Sauce Demo E-Ticaret', feature: 'Navigasyon', story: 'Yan menü aç/kapat', severity: Severity.MINOR });
     // 1. Menüyü aç
     await loggedInApp.commonPage.openMenu();
     await expect(loggedInApp.commonPage.allItemsLink).toBeVisible();
@@ -29,6 +32,7 @@ test.describe('Sidebar & Header Navigation Tests', () => {
   });
 
   test('TC03: Logout fonksiyonu oturumu sonlandırıp login ekranına yönlendirmeli', { tag: ['@smoke', '@regression'] }, async ({ loggedInApp, page }) => {
+    await AllureHelper.meta({ epic: 'Sauce Demo E-Ticaret', feature: 'Navigasyon', story: 'Oturum kapatma', severity: Severity.CRITICAL });
     // 1. CommonPage üzerinden çıkış yap
     await loggedInApp.commonPage.logout();
 

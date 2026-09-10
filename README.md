@@ -14,6 +14,7 @@ Framework; Page Object Model üzerine kurulu, ortak davranışların `BasePage` 
 * **Constants & Environment Ayrımı:** Değişmeyen değerler (beklenen mesajlar, URL kalıpları, dropdown value'ları) `constants/Constants.ts`'te; ortama göre değişen değerler (`BASE_URL`, parola, `HEADLESS`, `SLOW_MO`) `.env` dosyasında tutulur.
 * **Data-Driven Testing (DDT):** Kullanıcı adları `users.json`'dan, parolalar `.env`'den, checkout formu verileri ise **Faker** ile rastgele üretilerek beslenir. Kaynak kodda parola veya sabit test verisi yer almaz.
 * **Test Etiketleme:** Testler `@smoke` ve `@regression` etiketleriyle sınıflandırıldı; kritik yol ayrı, tam kapsam ayrı koşturulabilir.
+* **Detaylı Raporlama:** Allure Report entegre edildi; testler epic/feature/story ve kritiklik (severity) etiketleriyle sınıflandırıldı, hata anına ait ekran görüntüsü / video / trace rapora otomatik iliştirilir.
 * **Smart Wait & Auto-Wait:** Playwright'ın gömülü akıllı bekleme mekanizması kullanıldı; `sleep` / sabit bekleme yoktur.
 * **Çoklu Senaryo Desteği:** Uçtan uca satın alma akışının yanı sıra kilitli kullanıcı, geçersiz kimlik bilgisi ve yavaş ağ (performance glitch) senaryoları kapsandı.
 
@@ -26,6 +27,7 @@ Framework; Page Object Model üzerine kurulu, ortak davranışların `BasePage` 
 | Test Runner & Automation | [Playwright](https://playwright.dev/) |
 | Programlama Dili | TypeScript |
 | Test Verisi Üretimi | [@faker-js/faker](https://fakerjs.dev/) (locale: `fakerTR`) |
+| Raporlama | [Allure Report](https://allurereport.org/) + Playwright HTML Reporter |
 | Ortam Yönetimi | `.env` + Node yerleşik `process.loadEnvFile()` (ek bağımlılık yok) |
 | CI/CD | GitHub Actions |
 | Sürüm Kontrolü | Git & GitHub |
@@ -53,7 +55,8 @@ my-automation-project/
 │   ├── CheckoutPage.ts
 │   └── CommonPage.ts       # Header + yan menü bileşeni
 ├── utils/
-│   └── DataFactory.ts      # Faker ile rastgele test verisi üretimi
+│   ├── DataFactory.ts      # Faker ile rastgele test verisi üretimi
+│   └── AllureHelper.ts     # Allure meta verileri (etiket, adım, ek dosya)
 ├── tests/                  # Spec dosyaları (@smoke / @regression etiketli)
 │   ├── login.spec.ts
 │   ├── checkout.spec.ts
@@ -62,6 +65,8 @@ my-automation-project/
 │   └── sidebar.spec.ts
 ├── .github/workflows/
 │   └── playwright.yml      # CI pipeline
+├── allure-results/         # Ham test çıktıları (git'e gönderilmez)
+├── allure-report/          # Üretilen HTML rapor (git'e gönderilmez)
 ├── .env                    # Gizli/ortama bağlı değerler (git'e gönderilmez)
 ├── .env.example            # .env şablonu (git'e gönderilir)
 ├── playwright.config.ts    # Global konfigürasyon (tamamı ENV'den beslenir)
@@ -81,7 +86,8 @@ my-automation-project/
 | `constants/` | Değişmeyen değerler | `MESSAGES.ORDER_SUCCESS` |
 | `config/` + `.env` | Ortama göre değişen değerler | `BASE_URL`, `HEADLESS` |
 | `data/` | Test verisi (kimlik bilgileri) | `users.standardUser` |
-| `utils/` | Rastgele test verisi üretimi | `DataFactory.customerInfo()` |
+| `utils/DataFactory.ts` | Rastgele test verisi üretimi | `DataFactory.customerInfo()` |
+| `utils/AllureHelper.ts` | Rapor meta verisi | `AllureHelper.meta({ feature, severity })` |
 
 ### Fixture kullanımı
 
@@ -155,6 +161,14 @@ cp .env.example .env      # ardından USER_PASSWORD değerini doldurun
 npm run install:browsers
 ```
 
+### 4. Java kurulumunu doğrulayın (Allure için)
+
+Allure raporunu üreten CLI, Java 8+ gerektirir:
+
+```bash
+java -version      # yoksa: brew install openjdk
+```
+
 ---
 
 ## Test Koşumu
@@ -174,10 +188,59 @@ npm run install:browsers
 | `npm run test:e2e` | Uçtan uca satın alma akışları |
 | `npm run test:failed` | Yalnızca son koşumda fail olanlar |
 | `npm run test:ci` | CI için: Chromium + html & github reporter |
-| `npm run report` | HTML raporunu aç |
+| `npm run allure:serve` | Allure raporunu üretip tarayıcıda aç (tek komut) |
+| `npm run report:allure` | Allure raporunu üret + aç |
+| `npm run allure:generate` | `allure-results` → `allure-report` HTML üret |
+| `npm run allure:open` | Üretilmiş Allure raporunu aç |
+| `npm run report` | Playwright HTML raporunu aç |
 | `npm run trace` | Trace dosyasını görüntüle |
 | `npm run codegen` | Kayıttan test kodu üret |
 | `npm run clean` | Rapor ve çıktı klasörlerini temizle |
+
+---
+
+## Raporlama
+
+Her koşumda iki rapor üretilir:
+
+| Rapor | Klasör | Amaç |
+|---|---|---|
+| Playwright HTML | `playwright-report/` | Hızlı bakış, trace viewer entegrasyonu |
+| Allure | `allure-results/` → `allure-report/` | Detaylı analiz, gruplama, trend |
+
+### Allure raporunu görüntüleme
+
+```bash
+npm test                 # testleri koş (allure-results üretilir)
+npm run allure:serve     # raporu üret ve tarayıcıda aç
+```
+
+### Allure'ın sağladıkları
+
+* **Overview:** geçen/kalan/başarısız dağılımı, süre, ortam bilgisi (`BASE_URL`, `HEADLESS`, Node sürümü, işletim sistemi).
+* **Behaviors:** testler `epic → feature → story` hiyerarşisinde gruplanır. Örn. *Sauce Demo E-Ticaret → Login → Kilitli kullanıcı reddedilmeli*.
+* **Severity:** her test `blocker` / `critical` / `normal` / `minor` olarak işaretlidir; hangi hatanın acil olduğu tek bakışta görülür.
+* **Adımlar:** `detail: true` sayesinde her Playwright aksiyonu (click, fill, assertion) rapora otomatik adım olarak yazılır — testin nerede durduğu satır satır izlenir.
+* **Kanıtlar:** fail eden testin ekran görüntüsü, videosu ve trace dosyası rapora otomatik iliştirilir.
+* **Ek veriler:** Faker'ın ürettiği müşteri bilgisi her koşumda rapora JSON olarak eklenir — rastgele veriyle fail eden bir testte hangi değerlerin kullanıldığı görülür.
+* **Categories:** hatalar "Timeout hataları", "Element bulunamadı", "Assertion hataları" olarak otomatik sınıflandırılır.
+* **Trends:** CI'da geçmiş koşumlar saklandığı için başarı oranı ve süre eğilimi grafiklenir.
+
+### Test meta verisi ekleme
+
+```ts
+test('...', { tag: ['@smoke'] }, async ({ app }) => {
+  await AllureHelper.meta({
+    epic: 'Sauce Demo E-Ticaret',
+    feature: 'Login',
+    story: 'Kilitli kullanıcı reddedilmeli',
+    severity: Severity.CRITICAL,
+  });
+  ...
+});
+```
+
+Testler `allure-js-commons`'a doğrudan bağlanmaz; tüm çağrılar `utils/AllureHelper.ts` üzerinden geçer.
 
 ---
 
@@ -185,9 +248,12 @@ npm run install:browsers
 
 `.github/workflows/playwright.yml`, `main` / `master` dallarına yapılan push ve pull request'lerde çalışır:
 
-1. Bağımlılıkları kurar (`npm ci`)
-2. Tarayıcıları kurar (`npm run install:browsers`)
-3. Testleri koşar (`npm run test:ci`)
-4. HTML raporunu artifact olarak 30 gün saklar
+1. Node ve Java (Allure CLI için) kurar
+2. Bağımlılıkları kurar (`npm ci`)
+3. Tarayıcıları kurar (`npm run install:browsers`)
+4. Testleri koşar (`npm run test:ci`)
+5. Önceki koşumun Allure geçmişini geri yükler (trend grafiği için)
+6. Allure raporunu üretir ve artifact olarak 30 gün saklar
+7. Playwright HTML raporunu da artifact olarak saklar
 
 `.env` repoya gönderilmediği için CI değerleri workflow'un `env` bloğundan verilir; parola GitHub repo ayarlarındaki `USER_PASSWORD` secret'ından okunur.

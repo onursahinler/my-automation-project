@@ -1,12 +1,15 @@
 import { test, expect } from '../hooks/hook';
 import { Constants } from '../constants/Constants';
 import { DataFactory } from '../utils/DataFactory';
+import { AllureHelper, Severity } from '../utils/AllureHelper';
 
 /* Giriş adımı `loggedInApp` fixture'ında (hooks/hook.ts) merkezîleştirildi. */
 test.describe('Sauce Demo - Sepet Yönetimi ve Checkout Akışı', () => {
 
   test('En pahalı 3 ürünü ekle, en ucuzunu sil, tekrar ekle ve satın al', { tag: '@regression' }, async ({ loggedInApp, page }) => {
+    await AllureHelper.meta({ epic: 'Sauce Demo E-Ticaret', feature: 'Sepet Yönetimi', story: 'Sepette ürün silme ve tekrar ekleme', severity: Severity.CRITICAL });
     const customer = DataFactory.customerInfo();
+    await AllureHelper.attachJson('Üretilen müşteri bilgisi', customer);
     // 1. Pahalıdan ucuza sırala ve en pahalı 3 ürünü sepete ekle
     await loggedInApp.inventoryPage.sortProductsByPriceHighToLow();
     const cheapestOfTopThree = await loggedInApp.inventoryPage.getProductNameByIndex(2);

@@ -23,7 +23,48 @@ export default defineConfig({
   /* CI'da paralelliği kapat */
   workers: ENV.IS_CI ? 1 : undefined,
 
-  reporter: 'html',
+  /* Raporlayıcılar: terminal + Playwright HTML + Allure (+ CI'da GitHub annotation) */
+  reporter: [
+    ['list'],
+    ['html', { open: 'never' }],
+    [
+      'allure-playwright',
+      {
+        resultsDir: 'allure-results',
+        /* Playwright aksiyonlarını, hook'ları ve assertion'ları otomatik adım olarak yazar */
+        detail: true,
+        /* Suite'leri dosya adlarından türetir */
+        suiteTitle: true,
+        /* Raporun ana sayfasında görünecek ortam bilgisi */
+        environmentInfo: {
+          BASE_URL: ENV.BASE_URL,
+          HEADLESS: String(ENV.HEADLESS),
+          CI: String(ENV.IS_CI),
+          Node: process.version,
+          OS: `${process.platform} ${process.arch}`,
+        },
+        /* Hataları sınıflandırma — raporda "Categories" sekmesinde gruplanır */
+        categories: [
+          {
+            name: 'Timeout hataları',
+            messageRegex: '.*Timeout.*exceeded.*',
+            matchedStatuses: ['broken', 'failed'],
+          },
+          {
+            name: 'Element bulunamadı',
+            messageRegex: '.*(strict mode violation|waiting for locator).*',
+            matchedStatuses: ['failed', 'broken'],
+          },
+          {
+            name: 'Assertion hataları',
+            messageRegex: '.*expect.*',
+            matchedStatuses: ['failed'],
+          },
+        ],
+      },
+    ],
+    ...(ENV.IS_CI ? [['github'] as const] : []),
+  ],
 
   use: {
     /* page.goto('/') gibi göreli adreslerin çözümleneceği kök adres */
@@ -34,8 +75,10 @@ export default defineConfig({
 
     headless: ENV.HEADLESS,
 
-    /* İlk tekrar denemede trace topla */
+    /* Kanıt toplama — üçü de Allure raporuna otomatik eklenir */
     trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
 
     launchOptions: {
       slowMo: ENV.SLOW_MO,

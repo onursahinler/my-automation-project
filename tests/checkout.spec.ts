@@ -1,12 +1,15 @@
 import { test, expect } from '../hooks/hook';
 import { Constants } from '../constants/Constants';
 import { DataFactory } from '../utils/DataFactory';
+import { AllureHelper, Severity } from '../utils/AllureHelper';
 
 /* Giriş adımı `loggedInApp` fixture'ında (hooks/hook.ts) merkezîleştirildi. */
 test.describe('Sauce Demo - Uçtan Uca Alışveriş Akışı', () => {
 
   test('En Pahalı İki Ürünü Satın Alma ve Alışverişi Tamamlama', { tag: ['@smoke', '@regression'] }, async ({ loggedInApp, page }) => {
+    await AllureHelper.meta({ epic: 'Sauce Demo E-Ticaret', feature: 'Checkout', story: 'Uçtan uca satın alma', severity: Severity.BLOCKER });
     const customer = DataFactory.customerInfo();
+    await AllureHelper.attachJson('Üretilen müşteri bilgisi', customer);
     // 1. Adım: Ürünleri fiyata göre sırala ve en pahalı 2 tanesini sepete ekle
     await loggedInApp.inventoryPage.sortProductsByPriceHighToLow();
     await loggedInApp.inventoryPage.addTopExpensiveProductsToCart(2);
