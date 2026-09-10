@@ -8,8 +8,7 @@ test.describe('Sauce Demo - Performance Glitch User (Yavaş Ağ)', () => {
     // 1. Giriş (loginAs içinde inventory URL'i ve ürün listesi görünürlüğü doğrulanır)
     await app.loginAs(users.performanceGlitchUser.username, users.performanceGlitchUser.password);
 
-    // 2. Ürün ekle
-    await expect(page.locator('[data-test="inventory-item"]').first()).toBeVisible();
+    // 2. Ürün ekle (liste görünürlüğü loginAs içinde doğrulandı)
     await app.inventoryPage.addProductToCartByIndex(0);
     await app.inventoryPage.verifyCartBadgeCount('1');
 

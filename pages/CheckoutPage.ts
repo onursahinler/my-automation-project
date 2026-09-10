@@ -1,16 +1,16 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class CheckoutPage {
-  private page: Page;
-  private firstNameInput: Locator;
-  private lastNameInput: Locator;
-  private postalCodeInput: Locator;
-  private continueButton: Locator;
-  private finishButton: Locator;
-  private completeHeader: Locator;
+export class CheckoutPage extends BasePage {
+  private readonly firstNameInput: Locator;
+  private readonly lastNameInput: Locator;
+  private readonly postalCodeInput: Locator;
+  private readonly continueButton: Locator;
+  private readonly finishButton: Locator;
+  private readonly completeHeader: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.firstNameInput = page.locator('[data-test="firstName"]');
     this.lastNameInput = page.locator('[data-test="lastName"]');
     this.postalCodeInput = page.locator('[data-test="postalCode"]');
@@ -19,22 +19,21 @@ export class CheckoutPage {
     this.completeHeader = page.locator('[data-test="complete-header"]');
   }
 
-  // Müşteri bilgilerini doldurma fonksiyonu
+  // Müşteri bilgilerini doldur ve devam et
   async fillInformation(firstName: string, lastName: string, postalCode: string) {
-    await this.firstNameInput.fill(firstName);
-    await this.lastNameInput.fill(lastName);
-    await this.postalCodeInput.fill(postalCode);
-    await this.continueButton.click();
+    await this.fill(this.firstNameInput, firstName);
+    await this.fill(this.lastNameInput, lastName);
+    await this.fill(this.postalCodeInput, postalCode);
+    await this.click(this.continueButton);
   }
 
-  // Siparişi tamamlama fonksiyonu
+  // Siparişi tamamla
   async finishOrder() {
-    await this.finishButton.click();
+    await this.click(this.finishButton);
   }
 
-  // Başarı mesajını doğrulama fonksiyonu (final assertion)
+  // Başarı mesajını doğrula (final assertion)
   async verifySuccessMessage(expectedMessage: string) {
-    await expect(this.completeHeader).toBeVisible();
-    await expect(this.completeHeader).toHaveText(expectedMessage);
+    await this.expectText(this.completeHeader, expectedMessage);
   }
 }

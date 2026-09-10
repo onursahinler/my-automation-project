@@ -40,8 +40,8 @@ export class Hooks {
   /** Verilen kullanıcı ile giriş yapar ve inventory sayfasına ulaşıldığını doğrular */
   async loginAs(username: string, password: string) {
     await this.loginPage.login(username, password);
-    await expect(this.page).toHaveURL(/.*inventory\.html/);
-    await expect(this.page.locator('.inventory_list')).toBeVisible();
+    await this.inventoryPage.expectUrl(/.*inventory\.html/);
+    await this.inventoryPage.verifyPageLoaded();
   }
 
   /** En sık kullanılan senaryo: standart kullanıcı ile giriş */

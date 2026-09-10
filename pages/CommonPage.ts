@@ -1,16 +1,16 @@
-import { Page, Locator, expect } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class CommonPage {
-  private page: Page;
-
-  /* Readonly olma sebebi: 
-        Eğer bir testin veya başka bir metodun içinde yanlışlıkla bu özellikleri ezmeye çalışırsak, 
-        TypeScript derleme anında hata vermesi */
-        
+/**
+ * Header ve yan menü gibi TÜM sayfalarda ortak görünen bileşenler.
+ * Not: BasePage "teknik" ortaklıkları (page, assertion, navigasyon) tutar;
+ * CommonPage ise "görsel/işlevsel" ortak bileşeni (header + sidebar) temsil eder.
+ */
+export class CommonPage extends BasePage {
   // Header Öğeleri
   readonly menuButton: Locator;
-  readonly shoppingCartLink: Locator;
   readonly closeMenuButton: Locator;
+  readonly shoppingCartLink: Locator;
 
   // Yan Menü Linkleri
   readonly allItemsLink: Locator;
@@ -19,7 +19,7 @@ export class CommonPage {
   readonly resetAppStateLink: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.menuButton = page.locator('#react-burger-menu-btn');
     this.closeMenuButton = page.locator('#react-burger-cross-btn');
     this.shoppingCartLink = page.locator('.shopping_cart_link');
@@ -31,31 +31,31 @@ export class CommonPage {
   }
 
   async openMenu() {
-    await this.menuButton.click();
-    await expect(this.allItemsLink).toBeVisible();
+    await this.click(this.menuButton);
+    await this.expectVisible(this.allItemsLink);
   }
 
   async closeMenu() {
-    await this.closeMenuButton.click();
-    await expect(this.allItemsLink).not.toBeVisible();
+    await this.click(this.closeMenuButton);
+    await this.expectHidden(this.allItemsLink);
   }
 
   async navigateToAllItems() {
     await this.openMenu();
-    await this.allItemsLink.click();
+    await this.click(this.allItemsLink);
   }
 
   async logout() {
     await this.openMenu();
-    await this.logoutLink.click();
+    await this.click(this.logoutLink);
   }
 
   async resetAppState() {
     await this.openMenu();
-    await this.resetAppStateLink.click();
+    await this.click(this.resetAppStateLink);
   }
 
   async goToCart() {
-    await this.shoppingCartLink.click();
+    await this.click(this.shoppingCartLink);
   }
 }

@@ -14,7 +14,7 @@ test.describe('Sidebar & Header Navigation Tests', () => {
 
     // 3. Tekrar inventory sayfasına döndüğünü ve ürünlerin listelendiğini doğrula
     await expect(page).toHaveURL(/.*inventory.html/);
-    await expect(page.locator('.inventory_list')).toBeVisible();
+    await loggedInApp.inventoryPage.verifyPageLoaded();
   });
 
   test('TC02: Yan menü açılıp "X" butonu ile kapatılabilmeli', async ({ loggedInApp }) => {
@@ -33,7 +33,7 @@ test.describe('Sidebar & Header Navigation Tests', () => {
 
     // 2. Login URL'ine dönüldüğünü ve giriş butonunun görünür olduğunu doğrula
     await expect(page).toHaveURL('https://www.saucedemo.com/');
-    await expect(page.locator('[data-test="login-button"]')).toBeVisible();
+    await loggedInApp.loginPage.verifyPageLoaded();
   });
 
 });

@@ -1,39 +1,44 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class InventoryPage {
-  private page: Page;
-  private productSortSelect: Locator;
-  private inventoryItems: Locator;
-  private shoppingCartBadge: Locator;
+export class InventoryPage extends BasePage {
+  private readonly productSortSelect: Locator;
+  private readonly inventoryItems: Locator;
+  private readonly inventoryList: Locator;
+  private readonly shoppingCartBadge: Locator;
 
   constructor(page: Page) {
-    this.page = page;
+    super(page);
     this.productSortSelect = page.locator('[data-test="product-sort-container"]');
     this.inventoryItems = page.locator('[data-test="inventory-item"]');
+    this.inventoryList = page.locator('.inventory_list');
     this.shoppingCartBadge = page.locator('[data-test="shopping-cart-badge"]');
   }
 
-  // Ürünleri fiyata göre (yüksekten düşüğe) sıralayan fonksiyon
-  async sortProductsByPriceHighToLow() {
-    // Playwright selectOption ile dropdown menüden değer seçmek çok kolaydır
-    // 'hilo' değeri sitesinin kaynak kodunda "Price (high to low)" seçeneğine denk gelir
-    await this.productSortSelect.selectOption('hilo');
+  /** Ürün listesinin render edildiğini doğrular (yavaş kullanıcılar için kritik) */
+  async verifyPageLoaded() {
+    await this.expectVisible(this.inventoryList);
+    await this.expectVisible(this.inventoryItems.first());
   }
 
-  // Ürünleri fiyata göre (düşükten yükseğe) sıralayan fonksiyon
+  // Ürünleri fiyata göre (yüksekten düşüğe) sırala
+  async sortProductsByPriceHighToLow() {
+    await this.selectOption(this.productSortSelect, 'hilo');
+  }
+
+  // Ürünleri fiyata göre (düşükten yükseğe) sırala
   async sortProductsByPriceLowToHigh() {
-    await this.productSortSelect.selectOption('lohi');
+    await this.selectOption(this.productSortSelect, 'lohi');
   }
 
   // Belirli sıradaki ürünün adını döndürür
   async getProductNameByIndex(index: number): Promise<string> {
-    return this.inventoryItems.nth(index).locator('[data-test="inventory-item-name"]').innerText();
+    return this.getText(this.inventoryItems.nth(index).locator('[data-test="inventory-item-name"]'));
   }
 
   // Belirli sıradaki ürünü sepete ekler
   async addProductToCartByIndex(index: number) {
-    const addToCartButton = this.inventoryItems.nth(index).locator('button:has-text("Add to cart")');
-    await addToCartButton.click();
+    await this.click(this.inventoryItems.nth(index).locator('button:has-text("Add to cart")'));
   }
 
   // Ürün adına göre sepete ekler
@@ -41,33 +46,23 @@ export class InventoryPage {
     const item = this.inventoryItems.filter({
       has: this.page.locator('[data-test="inventory-item-name"]', { hasText: productName }),
     });
-    await item.locator('button:has-text("Add to cart")').click();
+    await this.click(item.locator('button:has-text("Add to cart")'));
   }
 
-  // Sayfadaki en pahalı ilk X adet ürünü sepete ekleyen fonksiyon
+  // Sıralama sonrası ilk X ürünü (en pahalılar) sepete ekler
   async addTopExpensiveProductsToCart(count: number) {
     for (let i = 0; i < count; i++) {
-      // Sıralama yapıldığı için ilk ürünler en pahalı olanlar olacak
-      // nth(i) ile sırasıyla 0., 1., 2. ürünü yakalıyoruz
-      const currentItem = this.inventoryItems.nth(i);
-      
-      // O ürün kartının içindeki "Add to cart" butonunu bulup tıklıyoruz
-      const addToCartButton = currentItem.locator('button:has-text("Add to cart")');
-      await addToCartButton.click();
+      await this.addProductToCartByIndex(i);
     }
   }
 
-  // Sepetteki ürün sayısını doğrulayan fonksiyon (Assertion)
+  // Sepet rozetindeki sayıyı doğrular
   async verifyCartBadgeCount(expectedCount: string) {
-    await expect(this.shoppingCartBadge).toBeVisible();
-    await expect(this.shoppingCartBadge).toHaveText(expectedCount);
+    await this.expectText(this.shoppingCartBadge, expectedCount);
   }
-
-
 
   // Ürünün sepetten kaldırıldığını doğrula — "Add to cart" butonu tekrar görünür olmalı
   async verifyProductHasAddToCartButton(index: number) {
-    const addToCartButton = this.inventoryItems.nth(index).locator('button:has-text("Add to cart")');
-    await expect(addToCartButton).toBeVisible();
+    await this.expectVisible(this.inventoryItems.nth(index).locator('button:has-text("Add to cart")'));
   }
 }

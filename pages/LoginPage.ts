@@ -1,43 +1,38 @@
-import { Locator, Page, expect } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+import { BasePage } from './BasePage';
 
-export class LoginPage {
-  // Değişkenler ve tipleri
-  private page: Page;
-  private usernameInput: Locator;
-  private passwordInput: Locator;
-  private loginButton: Locator;
-  private errorMessage: Locator;
+export class LoginPage extends BasePage {
+  // Sadece bu sayfaya ait locator'lar. `page` alanı ve assertion'lar BasePage'de.
+  private readonly usernameInput: Locator;
+  private readonly passwordInput: Locator;
+  private readonly loginButton: Locator;
+  private readonly errorMessage: Locator;
 
-  /* Constructor, bir sınıftan (Class) yeni bir nesne (instance) üretildiğinde 
-  otomatik olarak ilk çalışan özel bir fonksiyondur. Sınıfın "başlangıç ayarlarını" 
-  (initialization) yapmak için kullanılır. */
-
-  /* Locator, Playwright'ın web sayfasındaki HTML elementlerini 
-  (buton, input, metin vb.) bulabilmesi, izleyebilmesi ve onlarla etkileşime geçebilmesi 
-  için kullandığı gelişmiş bir arama/yakalama motorudur. */
   constructor(page: Page) {
-    this.page = page;
+    super(page); // `this.page = page` ataması BasePage'de yapılır
     this.usernameInput = page.locator('[data-test="username"]');
     this.passwordInput = page.locator('[data-test="password"]');
     this.loginButton = page.locator('[data-test="login-button"]');
     this.errorMessage = page.locator('[data-test="error"]');
   }
 
-  // Sayfaya yönlendirme
+  /** Login sayfasına git (baseURL config'ten gelir) */
   async navigateTo() {
-    await this.page.goto('https://www.saucedemo.com/');
+    await this.goto('/');
   }
 
-  // Login 
   async login(username: string, password: string) {
-    await this.usernameInput.fill(username);
-    await this.passwordInput.fill(password);
-    await this.loginButton.click();
+    await this.fill(this.usernameInput, username);
+    await this.fill(this.passwordInput, password);
+    await this.click(this.loginButton);
   }
 
-  // Hata mesajını doğrulama fonksiyonu
+  /** Login ekranının yüklendiğini doğrular */
+  async verifyPageLoaded() {
+    await this.expectVisible(this.loginButton);
+  }
+
   async verifyErrorMessage(expectedText: string) {
-    await expect(this.errorMessage).toBeVisible();
-    await expect(this.errorMessage).toContainText(expectedText);
+    await this.expectContainsText(this.errorMessage, expectedText);
   }
 }
